@@ -37,5 +37,4 @@ The latency of run-time performance is unknown, I assume re-compression does not
 
 
 ## 4. Conclusion
-
-	This project will deliver a compression algorithm. Part of the input of this algorithm will be a fixed point in the 3D world. Then this algorithm will calculate all redundant points in a point cloud and invisible these points. This project will use Matlab to demonstrate results. Eye tracking will also be applied in this project. The compression algorithm will be used as an API. When eye movement is detected,  the API will be called and a new 3D point cloud will be generated.
+This project will deliver a compression algorithm. Part of the input of this algorithm will be a fixed point in the 3D world. Then this algorithm will calculate all redundant points in a point cloud and invisible these points. This project will use Matlab to demonstrate results. Eye tracking will also be applied in this project. The compression algorithm will be used as an API. When eye movement is detected,  the API will be called and a new 3D point cloud will be generated.
