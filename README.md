@@ -16,7 +16,7 @@ the number of points being used in a 3d point cloud and ensures a clear 3D displ
 
 Using the Princeton shape benchmark and
 Matlab to generate some point clouds. These point clouds can be rotated and zoomed in
-Matlab Ref to {https://github.com/shahramg/FLS-Multimedia2022}.
+Matlab Ref to https://github.com/shahramg/FLS-Multimedia2022
 
 A potential idea for solving this problem is to reduce some useless points in the
 point cloud. As we know, humans can only see a 2D picture. In reality, we compress a 3D
