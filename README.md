@@ -14,27 +14,67 @@ the number of points being used in a 3d point cloud and ensures a clear 3D displ
 
 ## 2. Related works and potential ideas
 
-Paper[1] has shown a good solution for using the Princeton shape benchmark and
+Using the Princeton shape benchmark and
 Matlab to generate some point clouds. These point clouds can be rotated and zoomed in
-Matlab. This paper also provided some code for generating point clouds, which helps us
-to better observe points inside a 3D point cloud.
+Matlab Ref to {https://github.com/shahramg/FLS-Multimedia2022}.
+
 A potential idea for solving this problem is to reduce some useless points in the
 point cloud. As we know, humans can only see a 2D picture. In reality, we compress a 3D
 object into a 2D image and then transmit it to our eyes. This indicated all points in the
-background of a 3D object are redundant. We can disable these points for saving some
-energy or computing resource. For example, many points in figure 2 behind the vehicle
-are redundant. In theory, these points should not be visible. In meantime, if we compare
-figures 2 and 3 carefully, we will realize that the outline of the car is not clear enough.
-This is because the points on the back of the vehicle are also visible in the picture. This
-makes the shape of the vehicle more cluttered. If we disable these points, a better 3D
-object will be formed. Of course, if we have enough points and all points form a face
-without any gaps, then the shape of the object may also be clear enough, but this will
-require a large number of points.
+background of a 3D point cloud are redundant. We can disable these points for saving some computing resource. Making some points invisible will also imporve the accurate of the point cloud since some points will be shown in the front because of the gap between two points on the front. 
 
-## 3. Potential Problem
+Apply the Ray tracing (Ray-AABB Intersection Algorithm). Look at 11_07 Presentation.pptx for more details
 
-The latency of run-time performance is unknown, I assume re-compression does not require too much computation.  
+## 3. Overall Algorithm
+
+1. Eye position
+
+2. Calculate Ray direction 
+
+    Calculate Unit vector from eye to each point in the point cloud
+
+    Scalar quantization (trade off between runtime and accurate)
+
+    Unique ray direction
+
+3. Ray tracing (Ray-AABB Intersection Algorithm):
+   
+    Calculate the bounding cube (BC) of the point cloud (max and min point)
+
+    Calculate the intersection point(x) of the ray and the surface of the BC
+
+    Extend the ray from human eye to x until it hits a point in the point cloud
+
+    Return if rays beyond BC 
+
+    Return if the ray has penetrated the BC and has not hit any usable point
+
+    Return after hitting the first point
+
+4.	Mark first visitable vertex 
+
+5.	Mark all neighbor of the current vertex ( x <= 6 neighbors)
+
+6.	Loop through all rays 
+
+7.	Generate new point cloud
+
+## 4. Commands
+
+`pointCloudCompression('$PATH_OF_DATASET', 'OUTPUT_FIle', EYE_POSITION)`
+
+`plotPtCld('./OUTPUT_FIle')`
+
+Example:
+
+`pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off', './pt1741.ptcld', [1 1 1])`
+
+`plotPtCld('./pt1741.ptcld')`
+
+## 5. Potential Problem
+
+The latency of run-time performance.
 
 
-## 4. Conclusion
-This project will deliver a compression algorithm. Part of the input of this algorithm will be a fixed point in the 3D world. Then this algorithm will calculate all redundant points in a point cloud and invisible these points. This project will use Matlab to demonstrate results. Eye tracking will also be applied in this project. The compression algorithm will be used as an API. When eye movement is detected,  the API will be called and a new 3D point cloud will be generated.
+## 6. Conclusion
+This project will deliver a compression algorithm. Part of the input of this algorithm will be a point cloud and eye position. Then this algorithm will calculate all redundant points base on the eye position. This project will use Matlab to demonstrate results. Eye tracking will also be applied in this project. The compression algorithm will be used as an API. When eye movement is detected,  the API will be called and a new 3D point cloud will be generated.
