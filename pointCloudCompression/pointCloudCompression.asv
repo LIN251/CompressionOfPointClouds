@@ -225,9 +225,8 @@ end
 
 
 numVs = size(displayCell,1);
+figure('WindowButtonDownFcn',@(src,evnt)printPos())
 f = figure(1)
-figure('WindowButtonDownFcn',@(src,evnt)printPos(f))
-
 axis equal;
 hold on;
 for i=1:size(displayCell)

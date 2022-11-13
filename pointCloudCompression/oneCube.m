@@ -127,7 +127,7 @@ classdef oneCube < handle
                 error('The assigned vertex id must be a positive integer and index into the array of vertices.');
             end
         end
-        function obj = assignVertex(obj, value, width, height, depth, red, green, blue, alpha)
+        function obj = assignVertex(obj, value, width, height, depth)
             if (value > 0)
                 obj.numVertices = obj.numVertices+1;
                 if (obj.numVertices > obj.maxVertices)
@@ -136,12 +136,11 @@ classdef oneCube < handle
                 end
                 obj.assignedVertices(obj.numVertices)=value;
                 obj.positionCheckSum = obj.positionCheckSum + int64(width) + int64(height) + int64(depth);
-                obj.colorCheckSum = obj.colorCheckSum + int64(red) + int64(green) + int64(blue) + int64(alpha);
             else
                 error('The assigned vertex id must be a positive integer and index into the array of vertices.');
             end
         end
-        function obj = sanityAssignVertex(obj, value, width, height, depth, red, green, blue, alpha, vertexList, newV)
+        function obj = sanityAssignVertex(obj, value, width, height, depth, vertexList, newV)
             if (value > 0)
                 vertexList(value)=newV;
                 obj.numVertices = obj.numVertices + 1;
@@ -151,12 +150,11 @@ classdef oneCube < handle
                 %end
                 obj.assignedVertices(obj.numVertices)=value;
                 obj.positionCheckSum = obj.positionCheckSum + int64(width) + int64(height) + int64(depth);
-                obj.colorCheckSum = obj.colorCheckSum + int64(red) + int64(green) + int64(blue) + int64(alpha);
             else
                 error('The assigned vertex id must be a positive integer and index into the array of vertices.');
             end
         end
-        function obj = rmVertex(obj, value, oldwidth, oldheight, olddepth, oldred, oldgreen, oldblue, oldalpha)
+        function obj = rmVertex(obj, value, oldwidth, oldheight, olddepth)
             if (value > 0)
                 if intersect(obj.assignedVertices,value) == value
                 else
@@ -166,7 +164,6 @@ classdef oneCube < handle
                 obj.numVertices = obj.numVertices - 1;
                 % SHAHRAM, We may have to change the vertex
                 obj.positionCheckSum = obj.positionCheckSum - int64(oldwidth) - int64(oldheight) - int64(olddepth);
-                obj.colorCheckSum = obj.colorCheckSum - int64(oldred) - int64(oldgreen) - int64(oldblue) - int64(oldalpha);
             else
                 error('The assigned vertex id must be a positive integer and index into the array of vertices.');
             end
@@ -178,7 +175,6 @@ classdef oneCube < handle
                 tgtVertx = obj.assignedVertices(i);
                 currV = vertexList{tgtVertx};
                 obj.positionCheckSum = obj.positionCheckSum + int64(currV(1)) + int64(currV(2)) + int64(currV(3));
-                obj.colorCheckSum = obj.colorCheckSum + int64(currV(4)) + int64(currV(5)) + int64(currV(6)) + int64(currV(7));
             end
         end
         function obj = replaceVertex(obj, value, oldwidth, oldheight, olddepth, oldred, oldgreen, oldblue, oldalpha, newwidth, newheight, newdepth, newred, newgreen, newblue, newalpha)
@@ -186,10 +182,8 @@ classdef oneCube < handle
                 % The vertex value should be changed by the color due to
                 % scoping rules.
                 obj.positionCheckSum = obj.positionCheckSum - int64(oldwidth) - int64(oldheight) - int64(olddepth);
-                obj.colorCheckSum = obj.colorCheckSum - int64(oldred) - int64(oldgreen) - int64(oldblue) - int64(oldalpha);
 
                 obj.positionCheckSum = obj.positionCheckSum + int64(newwidth) + int64(newheight) + int64(newdepth);
-                obj.colorCheckSum = obj.colorCheckSum + int64(newred) + int64(newgreen) + int64(newblue) + int64(newalpha);
             else
                 error('The assigned vertex id must be a positive integer and index into the array of vertices.');
             end

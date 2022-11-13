@@ -53,8 +53,8 @@ classdef CloudPoint < handle
             obj.numVertices=0;
             obj.vertexList={};
 
-            for i=1:size(vtList,2)
-                coord=vtList{i};
+            for i=1:size(vtList)
+                coord=vtList(i,:);
                 tgtkey =  utilHashFunction(coord);
                 %if any(hashset(:) == tgtkey)
                 if hashtbl.isKey(tgtkey)
@@ -65,7 +65,7 @@ classdef CloudPoint < handle
                     %hashset(end+1)=tgtkey;
                     hashtbl(tgtkey)=i;
                     obj.numVertices = obj.numVertices + 1;
-                    obj.vertexList{obj.numVertices}=vtList{i};
+                    obj.vertexList{obj.numVertices}=vtList(i,:);
                 end
             end
         end

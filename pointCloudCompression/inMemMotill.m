@@ -177,7 +177,7 @@ for i=1:size(cloudPoint.vertexList,2)
         end
     else
         %tgtCube.assignedVertices = i;
-        tgtCube.assignVertex(i, currV(1), currV(2), currV(3), currV(4), currV(5), currV(6), currV(7));
+        tgtCube.assignVertex(i, currV(1), currV(2), currV(3));
     end
     % Otherwise, insert the vertex into the cube.
 end

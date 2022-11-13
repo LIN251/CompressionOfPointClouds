@@ -90,10 +90,10 @@ for k=1:j+1
     tgtv = currV(dimID);
     if tgtv < revMax
         %revCube.assignedVertices = vidInt;
-        revCube.assignVertex(vidInt, currV(1), currV(2), currV(3), currV(4), currV(5), currV(6), currV(7));
+        revCube.assignVertex(vidInt, currV(1), currV(2), currV(3));
     else
         %newCube.assignedVertices = vidInt;
-        newCube.assignVertex(vidInt, currV(1), currV(2), currV(3), currV(4), currV(5), currV(6), currV(7));
+        newCube.assignVertex(vidInt, currV(1), currV(2), currV(3));
     end
     % Sanity check.  Comment out for faster execution.
     if tgtv < revMin || tgtv > newMax
