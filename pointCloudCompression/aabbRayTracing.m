@@ -1,4 +1,4 @@
-function output = aabbRayTracing(origin, direction, grid3D, verbose, ptCloud)
+function output = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
     output = 0;
     [flag, tmin] = rayBCIntersection(origin, direction, grid3D.minBound, grid3D.maxBound);
 
@@ -63,11 +63,13 @@ function output = aabbRayTracing(origin, direction, grid3D, verbose, ptCloud)
                 
         while ( (x<=grid3D.nx)&&(x>=1) && (y<=grid3D.ny)&&(y>=1) && (z<=grid3D.nz)&&(z>=1) )
             if (verbose)
-                if ismember([x y z], ptCloud, "rows")
-                    output = [x y z];
-                    return
+                for t=1:size(boxes,1)
+                    if (x >= boxes(t,1) && x <= boxes(t,4) && y >= boxes(t,2) && y <= boxes(t,5) && z >= boxes(t,3) && z <= boxes(t,6))
+                        output = t;
+                        return
+                    end
                 end
-            end;
+            end
             if (tMaxX < tMaxY)
                 if (tMaxX < tMaxZ)
                     x = x + stepX;

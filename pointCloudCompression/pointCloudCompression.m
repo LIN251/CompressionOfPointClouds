@@ -1,4 +1,4 @@
-function output = pointCloudCompression(PrincetonShapeFileName, pointCloudFileName, eye)
+function output = pointCloudCompression(PrincetonShapeFileName, eye)
 
 % Include top folder for distanceCells
 addpath(genpath([fileparts(pwd), filesep, 'util' ]));
@@ -153,29 +153,59 @@ ptCloud=unique(ptCloud,'rows');
 
 % eye    = [1 1 1];
 verbose = 1;
-displayCell = [0 0 0];
 direction = [];
 % Grid: dimensions
 grid3D.nx = 100;
 grid3D.ny = 100;
 grid3D.nz = 100;
-minW = min(ptCloud(:,1));
-minH = min(ptCloud(:,2));
-minD = min(ptCloud(:,3));
-maxW = max(ptCloud(:,1));
-maxH = max(ptCloud(:,2));
-maxD = max(ptCloud(:,3));
-grid3D.minBound = [minW,minH,minD]';
-grid3D.maxBound = [maxW,maxH,maxD]';
+minD  = min(ptCloud(:,1))-1;
+minH = min(ptCloud(:,2))-1;
+minW = min(ptCloud(:,3))-1;
 
 
-ptCldArray{1} = CloudPoint(1,"testFile",ptCloud,minW,maxW,minH,maxH,minD,maxD);
 
-ptCldArray{1}.createGrid(false, false , 800, 0, 0, 0, 0);
+maxD = max(ptCloud(:,1))+1;
+maxH = max(ptCloud(:,2))+1;
+maxW = max(ptCloud(:,3))+1;
+grid3D.minBound = [minD,minH,minW]';
+grid3D.maxBound = [maxD,maxH,maxW]';
 
 
-for i=1:size(ptCloud,1)
-    cur = ptCloud(i,:);
+ptCldArray{1} = CloudPoint(1,"testFile",ptCloud,minD,maxD,minH,maxH,minW,maxW);
+
+ptCldArray{1}.createGrid(false, false , 1500, 0, 0, 0, 0);
+
+
+for i = 1 :size(ptCldArray{1}.cubes,2)
+    cubeArray{i} = ptCldArray{1,1}.cubes(1,i).assignedVertices;
+end
+pos = [1 2 3; 4 2 3; 1 5 3; 1 2 6; 4 5 3; 1 5 6; 4 2 6; 4 5 6];    
+boundry = [0 0 0 0 0 0];
+points = [0 0 0];
+for i = 1 :size(ptCldArray{1}.cubes,2)
+    tempArr = [0 0 0];
+    for c = 1 :size(cubeArray{1,i},2)
+        tempArr = [tempArr; ptCloud(cubeArray{1,i}(c),:)];
+    end
+    tempArr(1,:) = [];
+    cellPoints{i} = tempArr;
+    vertexs = [min(tempArr(:,1)) min(tempArr(:,2)) min(tempArr(:,3)) max(tempArr(:,1)) max(tempArr(:,2)) max(tempArr(:,3))];
+    boundry = [boundry; vertexs];
+    for i = 1 :8
+        xC = pos(i,1);
+        zC = pos(i,2);
+        yC = pos(i,3);
+        points = [points; [vertexs(xC) vertexs(zC) vertexs(yC)]];
+    end
+    points = [points; floor(vertexs(1)+vertexs(4)/2) floor(vertexs(2)+vertexs(5)/2) floor(vertexs(3)+vertexs(6)/2)];
+end
+points(1,:) = [];
+boundry(1,:) = [];
+
+
+
+for i=1:size(points,1)
+    cur = points(i,:);
     triple = cur - eye;
     d1 = triple(1:1);
     d2 = triple(2:2);
@@ -186,30 +216,37 @@ for i=1:size(ptCloud,1)
     direction = [direction; temp];
 end
 direction=unique(direction,'rows');
-neighbor = [1 0 0; 0 1 0; 0 0 1; -1 0 0; 0 -1 0; 0 0 -1];
+cellList = [];
 
+
+% re-Run start here
 for e=1:size(direction,1)
     curDirection = direction(e,:);
-    cur = aabbRayTracing(eye, curDirection, grid3D, verbose,ptCloud);
+    index = aabbRayTracing(eye, curDirection, grid3D, verbose,boundry);
     if cur == 0
         continue
     else
-        for i=1:size(neighbor,1)
-            temp = cur + neighbor(i,:);
-            if ismember(temp, ptCloud, "rows")
-                if ismember(temp, displayCell, "rows")
-                    continue
-                else
-                    displayCell = [displayCell; temp];
-                end
-            else
-                continue
-            end
+        if ismember(index, cellList)
+            continue
+        else
+            cellList = [cellList; index];
         end
     end
 end
 
 
+displayCell = [0 0 0];
+for cellIndex=1:size(cellList,1)
+    i = cellList(cellIndex);
+    if i == 0 
+        continue
+    else
+        displayCell = [displayCell; cellPoints{i}];
+    end
+end
+displayCell(1,:) = [];
+
+%cellPoints
 
 center = [floor((minW+maxW)/2) floor((minH+maxH)/2) floor((minD+maxD)/2)];
 triple = center - eye;
