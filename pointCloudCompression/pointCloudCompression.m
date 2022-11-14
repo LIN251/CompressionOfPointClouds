@@ -226,9 +226,6 @@ end
 validCellBoundry(1,:) = [];
 
 for t = 1 :size(boundry,1)
-    if t == 191
-        a = [];
-    end
     tempcell = cellCloud{t};
     if size(tempcell,1) > 8
 %         [~,idxMaxx]=max(tempcell(:,1));
@@ -303,6 +300,8 @@ end
 
 
 
+
+% re-Run start here
 points(1,:) = [];
 for i=1:size(points,1)
     cur = points(i,:);
@@ -318,8 +317,6 @@ end
 direction=unique(direction,'rows');
 cellList = [];
 
-
-% re-Run start here
 for e=1:size(direction,1)
     curDirection = direction(e,:);
     index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
@@ -346,46 +343,27 @@ for cellIndex=1:size(cellList,1)
 end
 displayCell(1,:) = [];
 
-%cellCloud
-
-center = [floor((minW+maxW)/2) floor((minH+maxH)/2) floor((minD+maxD)/2)];
-triple = center - eye;
-d1 = triple(1:1);
-d2 = triple(2:2);
-d3 = triple(3:3);
-magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-centerDir = triple/magnitude;
-
-
-
 
 % plot
-multiplier = 1;
-
-% figure('WindowButtonDownFcn',@(src,evnt)printPos(f))
-
+figure('WindowButtonDownFcn',@(src,evnt)printPos())
 axis equal;
 hold on;
-quiver3(eye(1), eye(2), eye(3), centerDir(1), centerDir(2), centerDir(3), 30);
 for i=1:size(displayCell)
-%     currLine = textscan(fileID,'%s',1,'Delimiter','\n');
-%     currRow = char(currLine{1});
-%     splittedRow = strsplit(currRow,' ');
-% 
-%     splittedRow = str2double(splittedRow);
     plot3(displayCell(i,1), displayCell(i,3), displayCell(i,2), '.b');
 end
-
-
 view(-140,12);
 hold off;
-% 
-% function printPos(f)
-%     clickedPt = get(gca,'CurrentPoint');
-%     VMtx = view(gca);
-%     point2d = VMtx * [clickedPt(1,:) 1]';
-%     eyepos = point2d(1:3)'
-%     clf(f)
+
+
+
+% on_click function
+function printPos()
+    clickedPt = get(gca,'CurrentPoint');
+    VMtx = view(gca);
+    point2d = VMtx * [clickedPt(1,:) 1]';
+   
+    eyepos = point2d(1:3)'
+    
 %     for i=1:size(displayCell)
 %     %     currLine = textscan(fileID,'%s',1,'Delimiter','\n');
 %     %     currRow = char(currLine{1});
@@ -394,29 +372,9 @@ hold off;
 %     %     splittedRow = str2double(splittedRow);
 %         plot3(displayCell(i,1), displayCell(i,2), displayCell(i,3), '.b');
 %     end
-% 
-% 
-% 
-% end
 
 
 
-
-
-
-
-
-
-% % Write the point cloud to a file
-% fid = fopen(pointCloudFileName,'w');
-% fprintf(fid,'OFF\n');
-% fprintf(fid,'%d 0 0 \n',size(displayCell,1));
-% for j=1:size(displayCell,1)
-%     % The following switch between y and z is intentional
-%     % It is to accomodate matlab 3D plot used in plotPtCld.m
-%     fprintf(fid,'%d %d %d\n',displayCell(j,1), displayCell(j,3), displayCell(j,2) );
-% end
-%  
-% fclose(fid);
+end
 
 end
