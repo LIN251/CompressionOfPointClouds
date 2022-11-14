@@ -12,9 +12,9 @@ function output = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
 
         start   = origin + tmin*direction;
 
-        x = start(1);
-        y = start(2);
-        z = start(3);
+        x = start(1)
+        y = start(2)
+        z = start(3)
 
 %         boxSize = grid3D.maxBound-grid3D.minBound;
 %         
@@ -69,7 +69,7 @@ function output = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
         while ( (x<=grid3D.nx)&&(x>=1) && (y<=grid3D.ny)&&(y>=1) && (z<=grid3D.nz)&&(z>=1) )
             if (verbose)
                 for t=1:size(boxes,1)
-                    if (boxes(t,1) == 0 && boxes(t,2) == 0 && boxes(t,3) == 0 &&boxes(t,4) == 0 &&boxes(t,5) == 0 &&boxes(t,6) == 0 )
+                    if (boxes(t,1) == )
                         continue
                     end
                     if (x >= boxes(t,1) && x <= boxes(t,4) && y >= boxes(t,2) && y <= boxes(t,5) && z >= boxes(t,3) && z <= boxes(t,6))

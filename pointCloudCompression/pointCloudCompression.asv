@@ -220,7 +220,7 @@ for t = 1 :size(boundry,1)
     if size(cellCloud{t},1) > 10 
         validCellBoundry = [validCellBoundry; boundry(t,:)];
     else
-        validCellBoundry = [validCellBoundry; [0 0 0 0 0 0]];
+        validCellBoundry = [validCellBoundry; [0 0 0]];
     end
 end
 validCellBoundry(1,:) = [];
@@ -250,9 +250,9 @@ for t = 1 :size(boundry,1)
         tempCenterx = floor((max(tempcell(:,1))+ min(tempcell(:,1)))/ 2);
         tempCenterz = floor((max(tempcell(:,2))+ min(tempcell(:,2)))/ 2);
         tempCentery = floor((max(tempcell(:,3))+ min(tempcell(:,3)))/ 2);
-%         for t = 1 :size(temp,1)
-%             points = [points; floor((temp(t,:)+ [tempCenterx tempCenterz tempCentery])/2)];
-%         end
+        for t = 1 :size(temp,1)
+            points = [points; floor((temp(t,:)+ [tempCenterx tempCenterz tempCentery])/2)];
+        end
 
         points = [points; tempCenterx tempCenterz tempCentery];
 %     elseif size(tempcell,1) > 0
@@ -304,6 +304,7 @@ end
 
 
 points(1,:) = [];
+points = [32 56 27]
 for i=1:size(points,1)
     cur = points(i,:);
     triple = cur - eye;
