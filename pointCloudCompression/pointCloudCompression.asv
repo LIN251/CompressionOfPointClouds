@@ -167,7 +167,7 @@ maxW = max(ptCloud(:,3))+1;
 grid3D.minBound = [minD,minH,minW]';
 grid3D.maxBound = [maxD,maxH,maxW]';
 points = [0 0 0];
-numOfCells = 5;
+numOfCells = 6;
 xr = floor((maxD-minD)/numOfCells)+1;
 zr = floor((maxH-minH)/numOfCells)+1;
 yr = floor((maxW-minW)/numOfCells)+1;
@@ -269,31 +269,31 @@ points(1,:) = [];
 
 
 % not euqal size cells
-% points = [0 0 0];
-% ptCldArray{1} = CloudPoint(1,"testFile",ptCloud,minD,maxD,minH,maxH,minW,maxW);
-% 
-% ptCldArray{1}.createGrid(false, false , 1500, 0, 0, 0, 0);
-% for i = 1 :size(ptCldArray{1}.cubes,2)
-%     cubeArray{i} = ptCldArray{1,1}.cubes(1,i).assignedVertices;
-% end
-% pos = [1 2 3; 4 2 3; 1 5 3; 1 2 6; 4 5 3; 1 5 6; 4 2 6; 4 5 6];    
-% 
-% for i = 1 :size(ptCldArray{1}.cubes,2)
-%     tempArr = [0 0 0];
-%     for c = 1 :size(cubeArray{1,i},2)
-%         tempArr = [tempArr; ptCloud(cubeArray{1,i}(c),:)];
-%     end
-%     tempArr(1,:) = [];
-%     cellCloud{i} = tempArr;
-%     vertexs = [min(tempArr(:,1)) min(tempArr(:,2)) min(tempArr(:,3)) max(tempArr(:,1)) max(tempArr(:,2)) max(tempArr(:,3))];
-%     for i = 1 :8
-%         xC = pos(i,1);
-%         zC = pos(i,2);
-%         yC = pos(i,3);
-%         points = [points; [vertexs(xC) vertexs(zC) vertexs(yC)]];
-%     end
-%     points = [points; floor(vertexs(1)+vertexs(4)/2) floor(vertexs(2)+vertexs(5)/2) floor(vertexs(3)+vertexs(6)/2)];
-% end
+points = [0 0 0];
+ptCldArray{1} = CloudPoint(1,"testFile",ptCloud,minD,maxD,minH,maxH,minW,maxW);
+
+ptCldArray{1}.createGrid(false, false , 1500, 0, 0, 0, 0);
+for i = 1 :size(ptCldArray{1}.cubes,2)
+    cubeArray{i} = ptCldArray{1,1}.cubes(1,i).assignedVertices;
+end
+pos = [1 2 3; 4 2 3; 1 5 3; 1 2 6; 4 5 3; 1 5 6; 4 2 6; 4 5 6];    
+
+for i = 1 :size(ptCldArray{1}.cubes,2)
+    tempArr = [0 0 0];
+    for c = 1 :size(cubeArray{1,i},2)
+        tempArr = [tempArr; ptCloud(cubeArray{1,i}(c),:)];
+    end
+    tempArr(1,:) = [];
+    cellCloud{i} = tempArr;
+    vertexs = [min(tempArr(:,1)) min(tempArr(:,2)) min(tempArr(:,3)) max(tempArr(:,1)) max(tempArr(:,2)) max(tempArr(:,3))];
+    for i = 1 :8
+        xC = pos(i,1);
+        zC = pos(i,2);
+        yC = pos(i,3);
+        points = [points; [vertexs(xC) vertexs(zC) vertexs(yC)]];
+    end
+    points = [points; floor(vertexs(1)+vertexs(4)/2) floor(vertexs(2)+vertexs(5)/2) floor(vertexs(3)+vertexs(6)/2)];
+end
 
 
 
@@ -301,7 +301,7 @@ points(1,:) = [];
 
 
 % re-Run start here
-points(1,:) = [];
+;points(1,:) = [];
 for i=1:size(points,1)
     cur = points(i,:);
     triple = cur - eye;
