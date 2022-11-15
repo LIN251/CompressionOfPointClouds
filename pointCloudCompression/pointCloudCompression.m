@@ -315,7 +315,6 @@ for i=1:size(points,1)
 end
 direction=unique(direction,'rows');
 cellList = [];
-
 for e=1:size(direction,1)
     curDirection = direction(e,:);
     index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
@@ -329,7 +328,6 @@ for e=1:size(direction,1)
         end
     end
 end
-
 cellList = unique(cellList);
 displayCell = [0 0 0];
 for cellIndex=1:size(cellList,1)
@@ -344,7 +342,7 @@ displayCell(1,:) = [];
 
 
 % plot
-% figure('WindowButtonDownFcn',@(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points))
+figure('WindowButtonDownFcn',@(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points))
 axis equal;
 hold on;
 for i=1:size(displayCell)
@@ -356,58 +354,61 @@ hold off;
 
 
 % on_click function
-% function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew)
-% 
-% clickedPt = get(gca,'CurrentPoint');
-% VMtx = view(gca);
-% point2d = VMtx * [clickedPt(1,:) 1]';
-% eyenew = point2d(1:3)';
-% 
-% directionNew = [];
-% for u=1:size(pointsNew,1)
-%     cur = pointsNew(u,:);
-%     triple = cur - eyenew;
-%     d1 = triple(1:1);
-%     d2 = triple(2:2);
-%     d3 = triple(3:3);
-%     magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-%     dir = triple/magnitude;
-%     tem = floor(dir* 1000)/1000;
-%     directionNew = [directionNew; tem];
-% end
-% directionNew=unique(directionNew,'rows');
-% cellList = [];
-% verbosenew = 1;
-% for e=1:size(directionNew,1)
-%     curDirection = directionNew(e,:);
-%     index = aabbRayTracing(eyenew, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
-%     if cur == 0
-%         continue
-%     else
-%         if ismember(index, cellList)
-%             continue
-%         else
-%             cellList = [cellList; index];
-%         end
-%     end
-% end
-% 
-% cellList = unique(cellList);
-% displayCell = [0 0 0];
-% for cellIndex=1:size(cellList,1)
-%     o = cellList(cellIndex);
-%     if o == 0 
-%         continue
-%     else
-%         displayCell = [displayCell; cellCloudNew{o}];
-%     end 
-% end
-% displayCell(1,:) = [];
-% clf(src)
-% for c=1:size(displayCell,1)
-%     
-%     plot3(displayCell(c,1), displayCell(c,3), displayCell(c,2), '.b');
-% end
-% end
+function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew)
+clickedPt = get(gca,'CurrentPoint');
+VMtx = view(gca);
+point2d = VMtx * [clickedPt(1,:) 1]';
+eyenew = point2d(1:3)'
+
+directionNew = [];
+for u=1:size(pointsNew,1)
+    cur = pointsNew(u,:);
+    triple = cur - eyenew;
+    d1 = triple(1:1);
+    d2 = triple(2:2);
+    d3 = triple(3:3);
+    magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+    dir = triple/magnitude;
+    tem = floor(dir* 1000)/1000;
+    directionNew = [directionNew; tem];
+end
+directionNew=unique(directionNew,'rows');
+cellList = [];
+verbosenew = 1;
+for e=1:size(directionNew,1)
+    curDirection = directionNew(e,:);
+    index = aabbRayTracing(eyenew, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
+    if cur == 0
+        continue
+    else
+        if ismember(index, cellList)
+            continue
+        else
+            cellList = [cellList; index];
+        end
+    end
+end
+
+cellList = unique(cellList);
+displayCell = [0 0 0];
+for cellIndex=1:size(cellList,1)
+    o = cellList(cellIndex);
+    if o == 0 
+        continue
+    else
+        displayCell = [displayCell; cellCloudNew{o}];
+    end 
+end
+displayCell(1,:) = [];
+clf(src)
+plot3(120, 120, 120, '.b');
+hold on
+plot3(-40, -40, -40 ,'.b');
+hold on
+for c=1:size(displayCell,1)
+    plot3(displayCell(c,1), displayCell(c,3), displayCell(c,2), '.b');
+    hold on
+end
+end
 
 end
