@@ -1,6 +1,15 @@
-% 
+A = 299; 
+B = [2 4 4 4 6 8];
+Lia = ~ismember(A,B)
 
-
+% figure('WindowButtonMotionFcn',@(src,evnt)printPos())
+% plot3(rand(5,1),rand(5,1)*20,rand(5,1)*5,'.'), view(3)
+% function printPos
+%   clickedPt = get(gca,'CurrentPoint');
+%   VMtx = view(gca);
+%   point2d = VMtx * [clickedPt(1,:) 1]';
+%   disp(point2d(1:3)')
+% end
 
 
 % % % plot
@@ -22,20 +31,20 @@
 
 
 
-figure('WindowButtonDownFcn',@(src,evnt)printPos(src,evnt))
-
-% on_click function
-function printPos(src,evnt)
-    clickedPt = get(gca,'CurrentPoint');
-    VMtx = view(gca);
-    point2d = VMtx * [clickedPt(1,:) 1]';
-    eyepos = point2d(1:3)'
-    % add points
-
-    plot3(7.9, 7.9, 7.9, '.b');
-    plot3(8, 8, 8, '.b');
-
-end
+% figure('WindowButtonDownFcn',@(src,evnt)printPos(src,evnt))
+% 
+% % on_click function
+% function printPos(src,evnt)
+%     clickedPt = get(gca,'CurrentPoint');
+%     VMtx = view(gca);
+%     point2d = VMtx * [clickedPt(1,:) 1]';
+%     eyepos = point2d(1:3)'
+%     % add points
+% 
+%     plot3(7.9, 7.9, 7.9, '.b');
+%     plot3(8, 8, 8, '.b');
+% 
+% end
 
 
 
