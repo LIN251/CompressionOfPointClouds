@@ -1,6 +1,6 @@
 function output = pointCloudCompression(PrincetonShapeFileName)
 % init value
-disp 'init eye position at [100 100 100]';
+% disp 'init eye position at [100 100 100]';
 eye = [100 100 100];
 % Include top folder for distanceCells
 addpath(genpath([fileparts(pwd), filesep, 'util' ]));
@@ -152,7 +152,7 @@ ptCloud=unique(ptCloud,'rows');
 temp = size(ptCloud,1);
 disp(['Generating point cloud with ', num2str(temp), ' vertices.' ]);
 
-% eye    = [1 1 1];
+
 verbose = 1;
 direction = [];
 % Grid: dimensions
@@ -303,77 +303,98 @@ points(1,:) = [];
 % re-Run start here
 points(1,:) = [];
 center = [floor(sum(ptCloud(:,1))/size(ptCloud(:,1),1)) floor(sum(ptCloud(:,2))/size(ptCloud(:,2),1)) floor(sum(ptCloud(:,3))/size(ptCloud(:,3),1))];
-% points = [20 77 26]
-% points = [23 83 25]
-% mid  43
-%points = [22 25 80]
 
-for i=1:size(points,1)
-    cur = points(i,:);
-    triple = cur - eye;
-    d1 = triple(1:1);
-    d2 = triple(2:2);
-    d3 = triple(3:3);
-    magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-    dir = triple/magnitude;
-    temp = floor(dir* 1000)/1000;
-    direction = [direction; temp];
-end
-direction=unique(direction,'rows');
-cellList = [];
-for e=1:size(direction,1)
-    curDirection = direction(e,:);
-    index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
-    if cur == 0
-        continue
-    else
-        if ismember(index, cellList)
-            continue
-        else
-            cellList = [cellList; index];
-        end
-    end
-end
-cellList = unique(cellList);
-displayCell = [0 0 0];
-for cellIndex=1:size(cellList,1)
-    i = cellList(cellIndex);
-    if i == 0 
-        continue
-    else
-        displayCell = [displayCell; cellCloud{i}];
-    end 
-end
-displayCell(1,:) = [];
+
+% for i=1:size(points,1)
+%     cur = points(i,:);
+%     triple = cur - eye;
+%     d1 = triple(1:1);
+%     d2 = triple(2:2);
+%     d3 = triple(3:3);
+%     magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+%     dir = triple/magnitude;
+%     temp = floor(dir* 1000)/1000;
+%     direction = [direction; temp];
+% end
+% direction=unique(direction,'rows');
+% cellList = [];
+% for e=1:size(direction,1)
+%     curDirection = direction(e,:);
+%     index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
+%     if cur == 0
+%         continue
+%     else
+%         if ismember(index, cellList)
+%             continue
+%         else
+%             cellList = [cellList; index];
+%         end
+%     end
+% end
+% cellList = unique(cellList);
+% displayCell = [0 0 0];
+% for cellIndex=1:size(cellList,1)
+%     i = cellList(cellIndex);
+%     if i == 0 
+%         continue
+%     else
+%         displayCell = [displayCell; cellCloud{i}];
+%     end 
+% end
+% displayCell(1,:) = [];
 
 
 
 % quiver3(eye(1), eye(2), eye(3), centerDir(1), centerDir(2), centerDir(3), 30);
 % plot
-figure('WindowButtonDownFcn',@(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,center))
-disp 'Process eye position:';
-disp([eye(1) eye(3) eye(2)])
-disp 'Process vertices:';
-disp(size(displayCell,1)) 
+disp 'Process original point cloud.';
+% disp([eye(1) eye(3) eye(2)])
+% disp 'Process vertices:';
+% disp(size(displayCell,1)) 
+
+collectionArr = [];
+figobj = figure;
+% f2 = @(varargin) disp('Callback 2');
+% iptaddcallback(figobj,'WindowButtonMotionFcn',f2);
+% figure('WindowButtonDownFcn',@(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,collectionArr))
 axis equal;
 hold on;
-for i=1:size(displayCell)
-    plot3(displayCell(i,1), displayCell(i,3), displayCell(i,2), '.b');
+% for i=1:size(displayCell)
+%     plot3(displayCell(i,1), displayCell(i,3), displayCell(i,2), '.b');
+ax = gca;
+for each = 1 :size(cellCloud,2)
+    if size(cellCloud{each},2) == 0
+        collectionArr = [collectionArr 0];
+    else
+        collectionArr = [collectionArr plot3(cellCloud{each}(:,1).', cellCloud{each}(:,3).', cellCloud{each}(:,2).', '.b')];  
+    end
 end
+f1 = @(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
+iptaddcallback(figobj,'WindowButtonDownFcn',f1);
+
+% end
 view(-140,12);
+hold on
+
+set(gca, 'CameraPosition', [100 100 100]);
+hold on;
 % hold on;
 % eye_to_center = [eye(1), eye(3),eye(2); center];
 % line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % hold on
 % plot3(eye(1), eye(3), eye(2), 'ko');
-hold on
-set(gca, 'CameraPosition', [eye(1) eye(3) eye(2)]);
-hold on;
+
+
+
+
+
+
+
 
 
 % on_click function
-function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,center)
+function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collectionArr,ax,center)
 clickedPt = get(gca,'CurrentPoint');
 VMtx = view(gca);
 point2d = VMtx * [clickedPt(1,:) 1]';
@@ -410,38 +431,63 @@ for e=1:size(directionNew,1)
 end
 
 cellList = unique(cellList);
-newDisplayCell = [0 0 0];
-for cellIndex=1:size(cellList,1)
-    o = cellList(cellIndex);
-    if o == 0 
-        continue
-    else
-        newDisplayCell = [newDisplayCell; cellCloudNew{o}];
-    end 
-end
-newDisplayCell(1,:) = [];
-clf(src)
 
-disp 'Process vertices:';
-disp(size(newDisplayCell,1)) 
-axis equal;
-hold on;
+% for each = 1 :size(cellCloudNew,2)
+%     if size(cellCloudNew{each},2) == 0
+%         collectionArr = [collectionArr 0];
+%     else
+%         collectionArr = [collectionArr plot3(cellCloudNew{each}(:,1).', cellCloudNew{each}(:,3).', cellCloudNew{each}(:,2).', '.b')];  
+%     end
+% end
+
+for each = 1 :size(collectionArr,2)
+    if size(cellCloud{each},2) ~= 0
+        if ismember(each,cellList)
+            set(collectionArr(each),'visible','on')
+        else
+            set(collectionArr(each),'visible','off')
+        end  
+    
+    end
+
+end
+
+% axis equal;
+% hold on;
+set(gca,'xlim',[ax.XLim])
+set(gca,'ylim',[ax.YLim])
+% newDisplayCell = [0 0 0];
+% for cellIndex=1:size(cellList,1)
+%     o = cellList(cellIndex);
+%     if o == 0 
+%         continue
+%     else
+%         newDisplayCell = [newDisplayCell; cellCloudNew{o}];
+%     end 
+% end
+% newDisplayCell(1,:) = [];
+% clf(src)
+
+% disp 'Process vertices:';
+% disp(size(newDisplayCell,1)) 
+
 
 % to be remove ~
-% eye_to_center = [eye_pos(1), eye_pos(3),eye_pos(2); center];
-% line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
-% plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
-% hold on
+eye_to_center = [eye_pos(1), eye_pos(3),eye_pos(2); center];
+line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
+plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
+hold on
+plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
+hold on
+% to be remove ~
+
+% for c=1:size(newDisplayCell,1)
+%     plot3(newDisplayCell(c,1), newDisplayCell(c,3), newDisplayCell(c,2), '.b');
+%     hold on
+% end
 % plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
-% hold on
-% to be remove ~
-
-for c=1:size(newDisplayCell,1)
-    plot3(newDisplayCell(c,1), newDisplayCell(c,3), newDisplayCell(c,2), '.b');
-    hold on
-end
-hold on;
-set(gca, 'CameraPosition', [eye_pos(1) eye_pos(3) eye_pos(2)]);
+% hold on;
+% set(gca, 'CameraPosition', [eye_pos(1) eye_pos(3) eye_pos(2)]);
 hold on
 disp '------------Done------------';
 end

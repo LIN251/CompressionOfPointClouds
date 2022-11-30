@@ -1,15 +1,12 @@
-A = 299; 
-B = [2 4 4 4 6 8];
-Lia = ~ismember(A,B)
 
-% figure('WindowButtonMotionFcn',@(src,evnt)printPos())
-% plot3(rand(5,1),rand(5,1)*20,rand(5,1)*5,'.'), view(3)
-% function printPos
-%   clickedPt = get(gca,'CurrentPoint');
-%   VMtx = view(gca);
-%   point2d = VMtx * [clickedPt(1,:) 1]';
-%   disp(point2d(1:3)')
-% end
+figure('WindowButtonMotionFcn',@(src,evnt)printPos())
+plot3(rand(5,1),rand(5,1)*20,rand(5,1)*5,'.'), view(3)
+function printPos
+  clickedPt = get(gca,'CurrentPoint');
+  VMtx = view(gca);
+  point2d = VMtx * [clickedPt(1,:) 1]';
+  disp(point2d(1:3)')
+end
 
 
 % % % plot
@@ -29,6 +26,27 @@ Lia = ~ismember(A,B)
 % 
 % end
 
+% data = peaks(25);
+% h = surf(data);
+% pause(3);
+% % delete one point (in fact delete all 4 patches containing this point
+% data(3,3) = NaN;
+% set(h, 'zdata', data)
+
+% 
+% figobj = figure;
+% f1 = @(varargin) disp('Callback 1');
+% f2 = @(varargin) disp('Callback 2');
+% iptaddcallback(figobj,'WindowButtonMotionFcn',f1);
+% iptaddcallback(figobj,'WindowButtonMotionFcn',f2);
+
+
+
+% figure;hold on; h1=plot(1,1,'b.'); h2=plot(2,2,'r.'); hold off
+% % if you want to hide h2
+% set(h2,'visible','off')
+% % if you want to delete h2
+% delete(h2)
 
 
 % figure('WindowButtonDownFcn',@(src,evnt)printPos(src,evnt))
