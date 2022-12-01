@@ -301,37 +301,40 @@ points(1,:) = [];
 
 
 % re-Run start here
+eye = [62.3966  -43.6399   15.3763]
+
 points(1,:) = [];
 center = [floor(sum(ptCloud(:,1))/size(ptCloud(:,1),1)) floor(sum(ptCloud(:,2))/size(ptCloud(:,2),1)) floor(sum(ptCloud(:,3))/size(ptCloud(:,3),1))];
 
 
-% for i=1:size(points,1)
-%     cur = points(i,:);
-%     triple = cur - eye;
+for i=1:size(points,1)
+    cur = points(i,:);
+    triple = cur - eye;
 %     d1 = triple(1:1);
 %     d2 = triple(2:2);
 %     d3 = triple(3:3);
 %     magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
 %     dir = triple/magnitude;
 %     temp = floor(dir* 1000)/1000;
-%     direction = [direction; temp];
-% end
-% direction=unique(direction,'rows');
-% cellList = [];
-% for e=1:size(direction,1)
-%     curDirection = direction(e,:);
-%     index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
-%     if cur == 0
-%         continue
-%     else
-%         if ismember(index, cellList)
-%             continue
-%         else
-%             cellList = [cellList; index];
-%         end
-%     end
-% end
-% cellList = unique(cellList);
+    temp = triple/norm(triple);
+    direction = [direction; temp];
+end
+direction=unique(direction,'rows');
+cellList = [];
+for e=1:size(direction,1)
+    curDirection = direction(e,:);
+    index = aabbRayTracing(eye, curDirection, grid3D, verbose,validCellBoundry);
+    if cur == 0
+        continue
+    else
+        if ismember(index, cellList)
+            continue
+        else
+            cellList = [cellList; index];
+        end
+    end
+end
+cellList = unique(cellList);
 % displayCell = [0 0 0];
 % for cellIndex=1:size(cellList,1)
 %     i = cellList(cellIndex);
@@ -369,21 +372,54 @@ for each = 1 :size(cellCloud,2)
         collectionArr = [collectionArr plot3(cellCloud{each}(:,1).', cellCloud{each}(:,3).', cellCloud{each}(:,2).', '.b')];  
     end
 end
-f1 = @(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
-iptaddcallback(figobj,'WindowButtonDownFcn',f1);
 
-% end
-view(-140,12);
-hold on
 
-set(gca, 'CameraPosition', [100 100 100]);
-hold on;
-% hold on;
+for each = 1 :size(collectionArr,2)
+    if size(cellCloud{each},2) ~= 0
+        if ismember(each,cellList)
+            set(collectionArr(each),'visible','on')
+        else
+            set(collectionArr(each),'visible','off')
+        end  
+    
+    end
+
+end
+
+
 % eye_to_center = [eye(1), eye(3),eye(2); center];
 % line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % hold on
 % plot3(eye(1), eye(3), eye(2), 'ko');
+% hold on
+
+% WindowButtonMotionFcn   WindowButtonDownFcn
+f1 = @(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
+iptaddcallback(figobj,'WindowButtonMotionFcn',f1);
+
+p1 = [eye(1) eye(3) eye(2)];
+triple = center - p1;
+% d1 = triple(1:1);
+% d2 = triple(2:2);
+% d3 = triple(3:3);
+% magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+% dir = triple/magnitude;
+% temp = floor(dir* 1000)/1000
+temp = triple/norm(triple);
+
+campos('manual')
+
+camva(camva-1)
+hold on
+campos([p1(1) , p1(2) ,  p1(3)])
+temp = [temp(1) temp(2) temp(3)];
+if eye(2) < center(2)
+    view(-temp);
+else
+    view(temp);
+end
+hold on;
 
 
 
@@ -393,7 +429,7 @@ hold on;
 
 
 
-% on_click function
+% % on_click function
 function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collectionArr,ax,center)
 clickedPt = get(gca,'CurrentPoint');
 VMtx = view(gca);
@@ -405,12 +441,13 @@ directionNew = [];
 for u=1:size(pointsNew,1)
     cur = pointsNew(u,:);
     triple = cur - eye_pos;
-    d1 = triple(1:1);
-    d2 = triple(2:2);
-    d3 = triple(3:3);
-    magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-    dir = triple/magnitude;
-    tem = floor(dir* 1000)/1000;
+%     d1 = triple(1:1);
+%     d2 = triple(2:2);
+%     d3 = triple(3:3);
+%     magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+%     dir = triple/magnitude;
+%     tem = floor(dir* 1000)/1000;
+    tem = triple/norm(triple);
     directionNew = [directionNew; tem];
 end
 directionNew=unique(directionNew,'rows');
@@ -454,8 +491,8 @@ end
 
 % axis equal;
 % hold on;
-set(gca,'xlim',[ax.XLim])
-set(gca,'ylim',[ax.YLim])
+% set(gca,'xlim',[ax.XLim])
+% set(gca,'ylim',[ax.YLim])
 % newDisplayCell = [0 0 0];
 % for cellIndex=1:size(cellList,1)
 %     o = cellList(cellIndex);
@@ -473,13 +510,37 @@ set(gca,'ylim',[ax.YLim])
 
 
 % to be remove ~
-eye_to_center = [eye_pos(1), eye_pos(3),eye_pos(2); center];
-line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
-plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
-hold on
-plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
-hold on
+% eye_to_center = [eye_pos(1), eye_pos(3),eye_pos(2); center];
+% line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
+% plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
+% hold on
+% plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
+% hold on
 % to be remove ~
+
+p1 = [eye_pos(1) eye_pos(3) eye_pos(2)];
+triple = center - p1;
+% d1 = triple(1:1);
+% d2 = triple(2:2);
+% d3 = triple(3:3);
+% magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+% dir = triple/magnitude;
+% temp = floor(dir* 1000)/1000
+temp = triple/norm(triple);
+
+campos('manual')
+camva(camva-1)
+% camva(1)
+hold on
+campos([p1(1) , p1(2) ,  p1(3)])
+temp = [temp(1) temp(2) temp(3)];
+if eye_pos(2) < center(2)
+    view(-temp);
+else
+    view(temp);
+end
+hold on;
+
 
 % for c=1:size(newDisplayCell,1)
 %     plot3(newDisplayCell(c,1), newDisplayCell(c,3), newDisplayCell(c,2), '.b');

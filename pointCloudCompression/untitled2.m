@@ -1,13 +1,12 @@
-figure('WindowButtonDownFcn',@(src,evnt)printPos(src,evnt))
+uicontrol('Style','pushbutton',...
+  'String','Zoom In',...
+  'Position',[20 20 60 20],...
+  'Callback','if camva <= 1; return; else; camva(camva-1); end');
 
-% on_click function
-function printPos(src,evnt)
+uicontrol('Style','pushbutton',...
+  'String','Zoom Out',...
+  'Position',[100 20 60 20],...
+  'Callback',...
+  'if camva >= 179; return; else; camva(camva+1); end');
 
-
-    plot3(7.9, 7.9, 7.9, '.b');
-    hold on
-    plot3(7.8, 7.8, 7.8, '.b');
-    hold on
-    plot3(8, 8, 8, '.b');
-
-end
+surf(peaks);
