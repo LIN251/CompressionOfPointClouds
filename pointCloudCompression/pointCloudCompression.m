@@ -168,7 +168,7 @@ maxW = max(ptCloud(:,3))+1;
 grid3D.minBound = [minD,minH,minW]';
 grid3D.maxBound = [maxD,maxH,maxW]';
 points = [0 0 0];
-numOfCells = 5;
+numOfCells = 6;
 xr = floor((maxD-minD)/numOfCells)+1;
 zr = floor((maxH-minH)/numOfCells)+1;
 yr = floor((maxW-minW)/numOfCells)+1;
@@ -244,16 +244,16 @@ for t = 1 :size(boundry,1)
 %         points = [points; tempcell(idxMaxx,:); tempcell(idxMaxz,:);tempcell(idxMaxy,:);tempcell(idxMinx,:);tempcell(idxMinz,:);tempcell(idxMiny,:)];
         
         points = [points;temp];
-        tempCenterx = floor((max(tempcell(:,1))+ min(tempcell(:,1)))/ 2);
-        tempCenterz = floor((max(tempcell(:,2))+ min(tempcell(:,2)))/ 2);
-        tempCentery = floor((max(tempcell(:,3))+ min(tempcell(:,3)))/ 2);
-%         for t = 1 :size(temp,1)
-%             points = [points; floor((temp(t,:)+ [tempCenterx tempCenterz tempCentery])/2)];
-%         end
+        rangeCenterx = floor((max(tempcell(:,1))+ min(tempcell(:,1)))/ 2);
+        rangeCentery = floor((max(tempcell(:,2))+ min(tempcell(:,2)))/ 2);
+        rangeCenterz = floor((max(tempcell(:,3))+ min(tempcell(:,3)))/ 2);
+        range_center = [rangeCenterx rangeCentery rangeCenterz];
+        [idk, weight_center]=kmeans(tempcell,1);
 
-        points = [points; tempCenterx tempCenterz tempCentery];
-%     elseif size(tempcell,1) > 0
-%         points = [points; tempcell];
+        points = [points; range_center];
+        points = [points; weight_center];
+    elseif size(tempcell,1) > 0
+        points = [points; tempcell];
 
     end
 end
@@ -301,11 +301,11 @@ points(1,:) = [];
 
 
 % re-Run start here
-eye = [-0.0206 0.0854 -1.1164]
+eye = [100 100 100];
 
 points(1,:) = [];
-center = [floor(sum(ptCloud(:,1))/size(ptCloud(:,1),1)) floor(sum(ptCloud(:,2))/size(ptCloud(:,2),1)) floor(sum(ptCloud(:,3))/size(ptCloud(:,3),1))];
-
+% center = [floor(sum(ptCloud(:,1))/size(ptCloud(:,1),1)) floor(sum(ptCloud(:,2))/size(ptCloud(:,2),1)) floor(sum(ptCloud(:,3))/size(ptCloud(:,3),1))];
+[idx,center]=kmeans(ptCloud,1);
 
 for i=1:size(points,1)
     cur = points(i,:);
@@ -396,7 +396,7 @@ end
 
 % WindowButtonMotionFcn   WindowButtonDownFcn
 f1 = @(src,evnt)printPos(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
-iptaddcallback(figobj,'WindowButtonDownFcn',f1);
+iptaddcallback(figobj,'WindowButtonMotionFcn',f1);
 
 p1 = [eye(1) eye(3) eye(2)];
 triple = center - p1;
@@ -410,17 +410,26 @@ temp = triple/norm(triple);
 
 campos('manual')
 disableDefaultInteractivity(ax)
-% camva(camva-1)
-hold on
 campos([p1(1) , p1(2) ,  p1(3)])
+hold on
+
 temp = [temp(1) temp(2) temp(3)];
 if eye(2) < center(2)
-    %-34.4974 29.6512 20.0952
     view([-temp(1) -temp(2) -temp(3)+0.2]);
+% eye = [33.9604  -15.0913   64.7360]
+% view([temp(1) -temp(2) -temp(3)+0.2]);
 else
-    % -0.0206   -1.1164    0.0854
     view([temp(1) temp(2) temp(3)]);
 end
+
+if (eye(1) < 0) && (eye(2) < 0) && (eye(3) > 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+elseif (eye(1) > 0) && (eye(2) > 0) && (eye(3) < 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+elseif (eye(1) > 0) && (eye(2) < 0) && (eye(3) < 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+end
+
 hold on;
 
 
@@ -436,13 +445,13 @@ function printPos(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,colle
 clickedPt = get(gca,'CurrentPoint');
 VMtx = view(gca);
 point2d = VMtx * [clickedPt(1,:) 1]';
-eye_pos = point2d(1:3)';
+eye = point2d(1:3)';
 disp 'Process eye position:';
-disp([eye_pos(1) eye_pos(2) eye_pos(3)])
+disp([eye(1) eye(2) eye(3)])
 directionNew = [];
 for u=1:size(pointsNew,1)
     cur = pointsNew(u,:);
-    triple = cur - eye_pos;
+    triple = cur - eye;
 %     d1 = triple(1:1);
 %     d2 = triple(2:2);
 %     d3 = triple(3:3);
@@ -457,7 +466,7 @@ cellList = [];
 verbosenew = 1;
 for e=1:size(directionNew,1)
     curDirection = directionNew(e,:);
-    index = aabbRayTracing(eye_pos, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
+    index = aabbRayTracing(eye, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
     if cur == 0
         continue
     else
@@ -512,15 +521,15 @@ end
 
 
 % to be remove ~
-% eye_to_center = [eye_pos(1), eye_pos(3),eye_pos(2); center];
+% eye_to_center = [eye(1), eye(3),eye(2); center];
 % line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % plot3(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
 % hold on
-% plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
+% plot3(eye(1), eye(3), eye(2), 'ko');
 % hold on
 % to be remove ~
 
-p1 = [eye_pos(1) eye_pos(3) eye_pos(2)];
+p1 = [eye(1) eye(3) eye(2)];
 triple = center - p1;
 % d1 = triple(1:1);
 % d2 = triple(2:2);
@@ -531,27 +540,38 @@ triple = center - p1;
 temp = triple/norm(triple);
 
 campos('manual')
-% camva(camva-1)
-% camva(1)
-hold on
 disableDefaultInteractivity(ax)
 campos([p1(1) , p1(2) ,  p1(3)])
+hold on
+
 temp = [temp(1) temp(2) temp(3)];
-if eye_pos(2) < center(2)
-    view([-temp(1) -temp(2) -temp(3)]);
+if eye(2) < center(2)
+    view([-temp(1) -temp(2) -temp(3)+0.2]);
+% eye = [33.9604  -15.0913   64.7360]
+% view([temp(1) -temp(2) -temp(3)+0.2]);
 else
     view([temp(1) temp(2) temp(3)]);
 end
+
+if (eye(1) < 0) && (eye(2) < 0) && (eye(3) > 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+elseif (eye(1) > 0) && (eye(2) > 0) && (eye(3) < 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+elseif (eye(1) > 0) && (eye(2) < 0) && (eye(3) < 0) 
+    campos([p1(1) , p1(2) ,  p1(3)])
+end
+
 hold on;
+
 
 
 % for c=1:size(newDisplayCell,1)
 %     plot3(newDisplayCell(c,1), newDisplayCell(c,3), newDisplayCell(c,2), '.b');
 %     hold on
 % end
-% plot3(eye_pos(1), eye_pos(3), eye_pos(2), 'ko');
+% plot3(eye(1), eye(3), eye(2), 'ko');
 % hold on;
-% set(gca, 'CameraPosition', [eye_pos(1) eye_pos(3) eye_pos(2)]);
+% set(gca, 'CameraPosition', [eye(1) eye(3) eye(2)]);
 hold on
 disp '------------Done------------';
 end

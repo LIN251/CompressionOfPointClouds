@@ -43,7 +43,7 @@ function output = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
                         
                         
                         output = [output; t];
-                        if size(output,1) >= 2
+                        if size(output,1) >= 4
                             return
                         end
                     end

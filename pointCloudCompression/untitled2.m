@@ -1,11 +1,8 @@
+load fisheriris
+X = meas(:,3:4);
 
-
-
-
-
-
-
-s = surf(peaks(20));
-xlabel('x-axis')
-ylabel('y-axis')
-zlabel('z-axis')
+figure;
+plot(X(:,1),X(:,2),'k*','MarkerSize',5);
+title 'Fisher''s Iris Data';
+xlabel 'Petal Lengths (cm)'; 
+ylabel 'Petal Widths (cm)';
