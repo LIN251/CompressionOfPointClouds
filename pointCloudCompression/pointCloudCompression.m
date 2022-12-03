@@ -249,9 +249,12 @@ for t = 1 :size(boundry,1)
         rangeCenterz = floor((max(tempcell(:,3))+ min(tempcell(:,3)))/ 2);
         range_center = [rangeCenterx rangeCentery rangeCenterz];
         [idk, weight_center]=kmeans(tempcell,1);
-
         points = [points; range_center];
         points = [points; weight_center];
+
+%         for t = 1 :size(temp,1) 
+%             points = [points; (temp(t,:) + weight_center)/2];
+%         end
     elseif size(tempcell,1) > 0
         points = [points; tempcell];
 
@@ -272,7 +275,7 @@ points(1,:) = [];
 % points = [0 0 0];
 % ptCldArray{1} = CloudPoint(1,"testFile",ptCloud,minD,maxD,minH,maxH,minW,maxW);
 % 
-% ptCldArray{1}.createGrid(false, false , 1500, 0, 0, 0, 0);
+% ptCldArray{1}.createGrid(false, false , 1000, 0, 0, 0, 0);
 % for i = 1 :size(ptCldArray{1}.cubes,2)
 %     cubeArray{i} = ptCldArray{1,1}.cubes(1,i).assignedVertices;
 % end
@@ -373,11 +376,12 @@ for each = 1 :size(cellCloud,2)
     end
 end
 
-
+count = 0;
 for each = 1 :size(collectionArr,2)
     if size(cellCloud{each},2) ~= 0
         if ismember(each,cellList)
             set(collectionArr(each),'visible','on')
+            count = count + size(collectionArr(each).XData,2);
         else
             set(collectionArr(each),'visible','off')
         end  
@@ -385,7 +389,7 @@ for each = 1 :size(collectionArr,2)
     end
 
 end
-
+count
 
 % eye_to_center = [eye(1), eye(3),eye(2); center];
 % line(eye_to_center(:,1), eye_to_center(:,2), eye_to_center(:,3))
@@ -400,12 +404,6 @@ iptaddcallback(figobj,'WindowButtonMotionFcn',f1);
 
 p1 = [eye(1) eye(3) eye(2)];
 triple = center - p1;
-% d1 = triple(1:1);
-% d2 = triple(2:2);
-% d3 = triple(3:3);
-% magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-% dir = triple/magnitude;
-% temp = floor(dir* 1000)/1000
 temp = triple/norm(triple);
 
 campos('manual')
@@ -416,8 +414,6 @@ hold on
 temp = [temp(1) temp(2) temp(3)];
 if eye(2) < center(2)
     view([-temp(1) -temp(2) -temp(3)+0.2]);
-% eye = [33.9604  -15.0913   64.7360]
-% view([temp(1) -temp(2) -temp(3)+0.2]);
 else
     view([temp(1) temp(2) temp(3)]);
 end
@@ -499,7 +495,7 @@ for each = 1 :size(collectionArr,2)
     end
 
 end
-
+pause(eps)
 % axis equal;
 % hold on;
 % set(gca,'xlim',[ax.XLim])
@@ -529,39 +525,39 @@ end
 % hold on
 % to be remove ~
 
-p1 = [eye(1) eye(3) eye(2)];
-triple = center - p1;
-% d1 = triple(1:1);
-% d2 = triple(2:2);
-% d3 = triple(3:3);
-% magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
-% dir = triple/magnitude;
-% temp = floor(dir* 1000)/1000
-temp = triple/norm(triple);
+% p1 = [eye(1) eye(3) eye(2)];
+% triple = center - p1;
+% % d1 = triple(1:1);
+% % d2 = triple(2:2);
+% % d3 = triple(3:3);
+% % magnitude = sqrt(d1*d1 + d2*d2+ d3*d3);
+% % dir = triple/magnitude;
+% % temp = floor(dir* 1000)/1000
+% temp = triple/norm(triple);
 
-campos('manual')
-disableDefaultInteractivity(ax)
-campos([p1(1) , p1(2) ,  p1(3)])
-hold on
-
-temp = [temp(1) temp(2) temp(3)];
-if eye(2) < center(2)
-    view([-temp(1) -temp(2) -temp(3)+0.2]);
-% eye = [33.9604  -15.0913   64.7360]
-% view([temp(1) -temp(2) -temp(3)+0.2]);
-else
-    view([temp(1) temp(2) temp(3)]);
-end
-
-if (eye(1) < 0) && (eye(2) < 0) && (eye(3) > 0) 
-    campos([p1(1) , p1(2) ,  p1(3)])
-elseif (eye(1) > 0) && (eye(2) > 0) && (eye(3) < 0) 
-    campos([p1(1) , p1(2) ,  p1(3)])
-elseif (eye(1) > 0) && (eye(2) < 0) && (eye(3) < 0) 
-    campos([p1(1) , p1(2) ,  p1(3)])
-end
-
-hold on;
+% campos('manual')
+% disableDefaultInteractivity(ax)
+% campos([p1(1) , p1(2) ,  p1(3)])
+% hold on
+% 
+% temp = [temp(1) temp(2) temp(3)];
+% if eye(2) < center(2)
+%     view([-temp(1) -temp(2) -temp(3)+0.2]);
+% % eye = [33.9604  -15.0913   64.7360]
+% % view([temp(1) -temp(2) -temp(3)+0.2]);
+% else
+%     view([temp(1) temp(2) temp(3)]);
+% end
+% 
+% if (eye(1) < 0) && (eye(2) < 0) && (eye(3) > 0) 
+%     campos([p1(1) , p1(2) ,  p1(3)])
+% elseif (eye(1) > 0) && (eye(2) > 0) && (eye(3) < 0) 
+%     campos([p1(1) , p1(2) ,  p1(3)])
+% elseif (eye(1) > 0) && (eye(2) < 0) && (eye(3) < 0) 
+%     campos([p1(1) , p1(2) ,  p1(3)])
+% end
+% 
+% hold on;
 
 
 
