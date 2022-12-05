@@ -210,6 +210,7 @@ This project supports both Windows and macOS operating systems.
         
         (c) mode: String -> [“mode1”, “mode2”].
 4. Example:
-        `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode1")`
+   
+    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode1")`
 
-       `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode2")`
+    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode2")`
