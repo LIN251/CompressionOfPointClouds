@@ -135,36 +135,35 @@ for rowid=1:height(sortedFaces)
 end
 
 
-% Eliminate duplicate points
+% Eliminate duplicate points.
 ptCloud=unique(ptCloud,'rows');
 numberOfPoints = size(ptCloud,1);
 disp(['Generating point cloud with ', num2str(numberOfPoints), ' vertices.' ]);
 verbose = 1;
 direction = [];
-% Grid: dimensions
-grid3D.nx = 100;
-grid3D.ny = 100;
-grid3D.nz = 100;
+% Grid: dimensions.
 minD  = min(ptCloud(:,1))-1;
 minH = min(ptCloud(:,2))-1;
 minW = min(ptCloud(:,3))-1;
 maxD = max(ptCloud(:,1))+1;
 maxH = max(ptCloud(:,2))+1;
 maxW = max(ptCloud(:,3))+1;
+grid3D.nx = maxD;
+grid3D.ny = maxH;
+grid3D.nz = maxW;
 grid3D.minBound = [minD,minH,minW]';
 grid3D.maxBound = [maxD,maxH,maxW]';
 numOfCells = cells;
 camerathreshold = 0.2;
 points = [0 0 0];
 validCellBoundry = [0 0 0 0 0 0];
-eye = [100 100 100];
 xr = ceil((maxD-minD)/numOfCells);
 zr = ceil((maxH-minH)/numOfCells);
 yr = ceil((maxW-minW)/numOfCells);
 
 
 
-% Get block boundry
+% Get block boundry.
 boundry = [0 0 0 0 0 0];
 tminD = minD;
 tminH = minH;
@@ -187,7 +186,7 @@ end
 boundry(1,:) = [];
 
 
-% Map points to the blocks
+% Map points to the blocks.
 cellCloud = cell(1,numOfCells^3);
 for p = 1 :size(ptCloud,1)
     x = ptCloud(p,1);
@@ -202,7 +201,7 @@ for p = 1 :size(ptCloud,1)
 end
 
 
-% Block represents points
+% Block represents points.
 for t = 1 :size(boundry,1)
     if size(cellCloud{t},1) > 10 
         validCellBoundry = [validCellBoundry; boundry(t,:)];
@@ -236,9 +235,7 @@ points(1,:) = [];
 validCellBoundry(1,:) = [];
 
 
-
-
-% re-Run start here
+% Process original point cloud.
 [idx,center]=kmeans(ptCloud,1);
 disp 'Process original point cloud.';
 collectionArr = [];
@@ -246,6 +243,7 @@ figobj = figure;
 axis equal;
 hold on;
 ax = gca;
+% map points to corresponding small blocks.
 for each = 1 :size(cellCloud,2)
     if size(cellCloud{each},2) == 0
         collectionArr = [collectionArr 0];
@@ -262,17 +260,27 @@ for each = 1 :size(collectionArr,2)
     end
 end
 
-
-% WindowButtonMotionFcn   WindowButtonDownFcn
+% Set up call back function.
 if mode == "mode1"
-    f1 = @(src,evnt)modeOne(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
+    f1 = @(src,evnt)modeOne(src,grid3D,validCellBoundry,points,collectionArr);
     iptaddcallback(figobj,'WindowButtonMotionFcn',f1);
 elseif mode == "mode2"
-    f1 = @(src,evnt)modeTwo(src,grid3D,cellCloud,validCellBoundry,points,collectionArr,ax,center);
+    f1 = @(src,evnt)modeTwo(src,grid3D,validCellBoundry,points,collectionArr,ax,center);
     iptaddcallback(figobj,'WindowButtonDownFcn',f1);
 else
     disp 'Mode incorrect, enter mode1 or mode2.';
 end
+
+
+% Prepare a default view position.
+% Get the max value of x, y, z of the point cloud, and then ceil the value
+% to its closest integer. Ex: 88 -> 100, 210->300.
+maxPos = max([maxD,maxH,maxW]);
+maxPosChar = char(string(maxPos));
+maxPosInt = str2num(maxPosChar(1:1))+1;
+value = maxPosInt * 10^(size(maxPosChar,2)-1);
+eye = [value value value];
+
 
 tempPosition = [eye(1) eye(3) eye(2)];
 triple = center - tempPosition;
@@ -290,8 +298,8 @@ hold on;
 
 
 
-% Mode 1 for Button motion tracking
-function modeOne(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collectionArr,ax,center)
+% Mode 1 for Button motion tracking.
+function modeOne(src,grid3DNew,validCellBoundryNew,pointsNew,collectionArr)
     cellList = [];
     verbosenew = 1;
     % Get click position
@@ -303,7 +311,7 @@ function modeOne(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     disp([eye(1) eye(2) eye(3)])
 
 
-    % Re-calculate ray directions
+    % Re-calculate ray directions.
     directionNew = [];
     for u=1:size(pointsNew,1)
         cur = pointsNew(u,:);
@@ -314,7 +322,7 @@ function modeOne(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     directionNew=unique(directionNew,'rows');
 
 
-    % AABB ray tracing
+    % AABB ray tracing.
     for e=1:size(directionNew,1)
         curDirection = directionNew(e,:);
         index = aabbRayTracing(eye, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
@@ -343,18 +351,20 @@ function modeOne(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
         end
     
     end
+    % pause the figure so the point cloud will not move by the Matlab
+    % default behaver.
     pause(eps)
     hold on
 end
 
 
 
-% Mode 2 for Button click tracking
-function modeTwo(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collectionArr,ax,center)
+% Mode 2 for Button click tracking.
+function modeTwo(src,grid3DNew,validCellBoundryNew,pointsNew,collectionArr,ax,center)
     camerathreshold = 0.2;
     cellList = [];
     verbosenew = 1;
-    % Get click position
+    % Get click position.
     clickedPt = get(gca,'CurrentPoint');
     VMtx = view(gca);
     point2d = VMtx * [clickedPt(1,:) 1]';
@@ -363,7 +373,7 @@ function modeTwo(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     disp([eye(1) eye(2) eye(3)])
 
 
-    % Re-calculate ray directions
+    % Re-calculate ray directions.
     directionNew = [];
     for u=1:size(pointsNew,1)
         cur = pointsNew(u,:);
@@ -374,9 +384,10 @@ function modeTwo(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     directionNew=unique(directionNew,'rows');
 
 
-     % AABB ray tracing
+     % AABB ray tracing.
     for e=1:size(directionNew,1)
         curDirection = directionNew(e,:);
+        % call helper function for ray tracing.
         index = aabbRayTracing(eye, curDirection, grid3DNew, verbosenew, validCellBoundryNew);
         if cur == 0
             continue
@@ -391,7 +402,7 @@ function modeTwo(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     cellList = unique(cellList);
 
 
-    % Process blocks
+    % Process blocks.
     for each = 1 :size(collectionArr,2)
         if size(cellCloud{each},2) ~= 0
             if ismember(each,cellList)
@@ -403,11 +414,7 @@ function modeTwo(src,grid3DNew,cellCloudNew,validCellBoundryNew,pointsNew,collec
     end
 
 
-    % Set matlab camera 
-    axis equal;
-    hold on;
-    set(gca,'xlim',[ax.XLim])
-    set(gca,'ylim',[ax.YLim])
+    % Set matlab camera.
     p1 = [eye(1) eye(3) eye(2)];
     triple = center - p1;
     unitVector = triple/norm(triple);
@@ -430,11 +437,14 @@ end
 
 
 
-% AABB ray tracing
+
+% AABB ray tracing.
 function index = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
     index = 0;
+    % call helper function to get the first hit between ray and the ideal.
+    % box
     [flag, tMinHit] = rayBCIntersection(origin, direction, grid3D.minBound, grid3D.maxBound);
-
+    % if no hit then return.
     if (flag==0)
         index = 0;
         return
@@ -443,26 +453,10 @@ function index = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
             tMinHit = 0;
         end;
         start   = origin + tMinHit*direction;
+        % strat is the first hit betweent current ray and the ideal box.
         x1 = start(1);
         y2 = start(2);
         z3 = start(3);
-        if (direction(1)>=0)
-            stepX = 1;
-        else
-            stepX = -1;  
-        end;
-        
-        if (direction(2)>=0)
-            stepY = 1;
-        else
-            stepY = -1;
-        end;
-        
-        if (direction(3)>=0)
-            stepZ = 1;
-        else
-            stepZ = -1;  
-        end;
         index = []; 
         while ( (x1<=grid3D.nx)&&(x1>=1) && (y2<=grid3D.ny)&&(y2>=1) && (z3<=grid3D.nz)&&(z3>=1) )
             if (verbose)
@@ -470,17 +464,17 @@ function index = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
                     if (boxes(t1,1) == 0 && boxes(t1,2) == 0 && boxes(t1,3) == 0 &&boxes(t1,4) == 0 &&boxes(t1,5) == 0 &&boxes(t1,6) == 0)
                         continue
                     end
-                    % check hit a valable block
+                    % check hit a valable block.
                     if (x1 >= boxes(t1,1) && x1 <= boxes(t1,4) && y2 >= boxes(t1,2) && y2 <= boxes(t1,5) && z3 >= boxes(t1,3) && z3 <= boxes(t1,6) && ~ismember(t1,index))   
                         index = [index; t1];
-                        %number of blocks hited before returning
-                        if size(index,1) >= 3
+                        %number of blocks hited before returning.
+                        if size(index,1) >= hits
                             return
                         end
                     end
                 end
             end
-            % extend the ray 
+            % extend the ray.
             x1 = x1 + direction(1);
             y2 = y2 + direction(2);
             z3 = z3 + direction(3);
@@ -489,8 +483,9 @@ function index = aabbRayTracing(origin, direction, grid3D, verbose, boxes)
 end
 
 
-%helper function to calculate the first hit between ray and the ideal box
+%helper function to calculate the first hit between ray and the ideal box.
 function [flag ,tMin] = rayBCIntersection(origin, direction, vmin, vmax)
+    % Simultaneous equations of Rays and Planes.
     if (direction(1) >= 0) 
     	tMin = (vmin(1) - origin(1)) / direction(1);
     	tMax = (vmax(1) - origin(1)) / direction(1);
@@ -529,7 +524,8 @@ function [flag ,tMin] = rayBCIntersection(origin, direction, vmin, vmax)
        tzmax = (vmin(3) - origin(3)) / direction(3);
     end
 
-
+    % check whether there is a hit between ray and the ideal box.
+    % if not hit then return.
     if ((tMin > tzmax) || (tzmin > tMax))
         flag = 0;
         tMin = -1;
