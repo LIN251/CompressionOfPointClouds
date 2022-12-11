@@ -154,12 +154,14 @@ grid3D.ny = maxH;
 grid3D.nz = maxW;
 grid3D.minBound = [minD,minH,minW]';
 grid3D.maxBound = [maxD,maxH,maxW]';
-numOfCells = cells;
+numOfCellsX = cells(1);
+numOfCellsY = cells(2);
+numOfCellsZ = cells(3);
 points = [0 0 0];
 validCellBoundry = [0 0 0 0 0 0];
-xr = ceil((maxD-minD)/numOfCells);
-zr = ceil((maxH-minH)/numOfCells);
-yr = ceil((maxW-minW)/numOfCells);
+xr = ceil((maxD-minD)/numOfCellsX);
+zr = ceil((maxH-minH)/numOfCellsZ);
+yr = ceil((maxW-minW)/numOfCellsY);
 
 
 
@@ -181,13 +183,13 @@ boundry = [0 0 0 0 0 0];
 tminD = minD;
 tminH = minH;
 tminW = minW;
-for h = 1 :numOfCells
+for h = 1 :numOfCellsZ
     h = h -1;
     tminH = minH + (h * zr);
-    for w = 1 :numOfCells
+    for w = 1 :numOfCellsY
         w = w -1;
         tminW = minW + (w * yr);
-        for d = 1 :numOfCells
+        for d = 1 :numOfCellsX
             d = d - 1;
             tminD = minD + (d * xr);
             tmin = [tminD tminH tminW];
@@ -200,7 +202,7 @@ boundry(1,:) = [];
 
 
 % Map points to the blocks.
-cellCloud = cell(1,numOfCells^3);
+cellCloud = cell(1, numOfCellsX * numOfCellsY * numOfCellsZ);
 for p = 1 :size(ptCloud,1)
     x = ptCloud(p,1);
     y = ptCloud(p,2);

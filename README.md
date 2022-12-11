@@ -206,11 +206,11 @@ This project supports both Windows and macOS operating systems.
     
         (a) hits: Integer -> The number of blocks a single ray can hit before returning.
         
-        (b) cells: Integer -> The number of pieces a point cloud will be divided into. If cells = 6 then the point cloud will be divided into 6 pieces on the x-axis, y-axis, and z-axis.
+        (b) cells: Array -> The number of bins, specified as a three-element vector of the form [numBinsX,numBinsY, numBinsZ]. The vector elements indicate the number of bins to use in each dimension, respectively. 
         
         (c) mode: String -> [“mode1”, “mode2”].
 4. Example:
    
-    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode1")`
+    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,[6 6 6],"mode1")`
 
-    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,6,"mode2")`
+    `pointCloudCompression('~/Datasets/Princeton/db/17/m1740/m1740.off',3,[6 6 6],"mode2")`
